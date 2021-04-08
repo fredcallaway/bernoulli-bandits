@@ -11,12 +11,12 @@ using StatsBase
 using Revise
 includet("bernoulli_bandits.jl")
 
-# # %% --------
-# n_arm, max_obs = 4, 30
-# m = Bandits(;n_arm, max_obs)
-# @time ValueFunction(m)(Belief(m))
-# @time ValueFunction(m, hash)(Belief(m))
-
+#=
+n_arm, max_obs, true_value = 2, 20, 0.9
+m = Bandits(;n_arm, max_obs)
+V = ValueFunction(m)
+V(Belief(m))
+=#
 
 # %% --------
 m = Bandits(;n_arm, max_obs=horizon)
@@ -46,7 +46,6 @@ end
 
 true_state = true_value * ones(n_arm)
 println("Simulating...")
-simulate(pol, true_state).beliefs[end]
 N_sim = 10000
 sims = map(1:N_sim) do i
     sim = simulate(pol, true_state)
