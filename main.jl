@@ -1,9 +1,10 @@
-n_arm, max_obs = try
-    parse.(Int, ARGS)
+n_arm, horizon, true_value = try
+    parse.([Int, Int, Float64], ARGS)
 catch
-    println("Usage: julia main.jl [N_ARM] [HORIZON]")
+    println("Usage: julia main.jl [N_ARM] [HORIZON] [TRUE_VALUE]")
     exit(1)
 end
+@show n_arm horizon true_value
 
 using JSON
 using StatsBase
@@ -18,11 +19,10 @@ includet("bernoulli_bandits.jl")
 
 
 # %% --------
-m = Bandits(;n_arm, max_obs)
-println("$n_arm arms, $max_obs steps")
+m = Bandits(;n_arm, max_obs=horizon)
 
 V = ValueFunction(m)
-print("Running dynamic programming")
+print("Running dynamic programming...")
 @time V(Belief(m))
 println("Number of (symmetry-reduced) states: ", length(V.cache))
 
@@ -42,10 +42,10 @@ else
     println("Empirical says: $(mean(empirical_values)) ± $(sem(empirical_values))")
 end
 
-
 # %% --------
 
-true_state = 0.9 * ones(4)
+true_state = true_value * ones(n_arm)
+println("Simulating...")
 simulate(pol, true_state).beliefs[end]
 N_sim = 10000
 sims = map(1:N_sim) do i
